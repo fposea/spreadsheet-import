@@ -3,70 +3,65 @@ sap.ui.define([], function() {
     
     return {
         validateExcelFile: function(oEvent) {
-            const file = oEvent.getParameter("files")[0];
-            const fileType = file.type;
-            const fileName = file.name;
-            
-            // Valid Excel MIME types
-            const validTypes = [
-                'application/vnd.ms-excel',                                    // .xls
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
-                'application/vnd.ms-excel.sheet.macroEnabled.12'              // .xlsm
-            ];
-            
-            // Check file extension as fallback
-            const validExtensions = ['.xls', '.xlsx', '.xlsm'];
-            const fileExtension = fileName.toLowerCase().slice((fileName.lastIndexOf(".") - 1 >>> 0) + 2);
-            
-            // Check both MIME type and extension
-            if (!validTypes.includes(fileType) && !validExtensions.includes(`.${fileExtension}`)) {
-                // Reset the file uploader
-                oEvent.getSource().clear();
+            var file = oEvent.getParameter("files")[0];
+            if (file) {
+                var fileName = file.name;
+                var fileType = fileName.split('.').pop().toLowerCase();
                 
-                // Show error message
-                sap.m.MessageBox.error("Please upload only Excel files (.xls, .xlsx, .xlsm)");
-                return false;
+                if (fileType !== "xlsx" && fileType !== "xls") {
+                    throw new Error("Please upload an Excel file");
+                }
+                return true;
             }
-            
-            return true;
+            return false;
         },
 
-        convertExcelToJson: function (file) {
+        convertExcelToJson: function(file) {
             return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: "array" });
-                    const sheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[sheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                    resolve(jsonData);
-                };
-                reader.onerror = reject;
-                reader.readAsArrayBuffer(file);
+                try {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const data = e.target.result;
+                        const workbook = XLSX.read(data, {
+                            type: 'binary'
+                        });
+                        
+                        // Get first sheet
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        
+                        // Convert to JSON
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                        resolve(jsonData);
+                    };
+                    reader.onerror = function(ex) {
+                        reject(ex);
+                    };
+                    reader.readAsBinaryString(file);
+                } catch (ex) {
+                    reject(ex);
+                }
             });
         },
 
-        validateJsonTemplate: function (jsonData) {
-            const expectedRows = {
-                ACTIVE: "string",
-                DESCRIPTION: "string", 
-                NAME: "string",
-                OWNER: "string",
-                PARENT_PACKAGE_KEYS: "string",
-                STEREOTYPE: "string",
-                TECHNICAL_NAME: "string",
-            };
+        validateJsonTemplate: function(jsonData) {
+            if (!Array.isArray(jsonData) || jsonData.length === 0) {
+                return false;
+            }
 
-            const checkType = (value, type) => typeof value === type;
+            const requiredFields = [
+                "TECHNICAL_NAME",
+                "NAME",
+                "DESCRIPTION",
+                "STEREOTYPE",
+                "OWNER",
+                "ACTIVE",
+                "PARENT_PACKAGE_KEYS"
+            ];
 
-            return jsonData.every((item) =>
-                Object.keys(expectedRows).every(
-                    (key) =>
-                        key in item && checkType(item[key], expectedRows[key])
-                )
-            );
+            // Check if first row has all required fields
+            const firstRow = jsonData[0];
+            return requiredFields.every(field => field in firstRow);
         }
-        
     };
 }); 

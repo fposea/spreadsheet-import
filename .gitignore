@@ -51,3 +51,6 @@ coverage/
 
 # Explicitly include mockdata
 !webapp/mockdata/
+
+# Add this line to ensure libs folder is tracked
+!webapp/libs/

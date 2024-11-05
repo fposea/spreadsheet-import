@@ -3,27 +3,69 @@
     xmlns:core="sap.ui.core"
     xmlns:u="sap.ui.unified">
     <Dialog
-        title="Upload Excel File"
-        class="sapUiContentPadding">
+        id="uploadDialog"
+        title="Upload File"
+        class="sapUiContentPadding"
+        contentWidth="80%"
+        contentHeight="60%">
         <content>
             <VBox>
                 <u:FileUploader
                     id="fileUploader"
                     width="100%"
-                    tooltip="Upload Excel File"
-                    placeholder="Choose Excel file..."
-                    change=".onFileChange"
-                    style="Emphasized"/>
-                <Text
-                    text="Only Excel files (.xls, .xlsx, .xlsm) are allowed"
-                    class="sapUiSmallMarginTop"/>
+                    tooltip="Choose file"
+                    placeholder="Choose file"
+                    change=".onFileChange"/>
+                <Label text="Please upload a valid template for the bulk upload. See download link." />
+
+                <Table
+                    id="dataTable"
+                    items="{/items}"
+                    visible="false"
+                    class="sapUiSmallMarginTop">
+                    <columns>
+                        <Column>
+                            <Text text="Technical_Name" />
+                        </Column>
+                        <Column>
+                            <Text text="Name" />
+                        </Column>
+                        <Column>
+                            <Text text="Description" />
+                        </Column>
+                        <Column>
+                            <Text text="Stereotype" />
+                        </Column>
+                        <Column>
+                            <Text text="Owner" />
+                        </Column>
+                        <Column>
+                            <Text text="Active" />
+                        </Column>
+                        <Column>
+                            <Text text="Parent_Package_Keys" />
+                        </Column>
+                    </columns>
+                    <items>
+                        <ColumnListItem>
+                            <cells>
+                                <Text text="{TECHNICAL_NAME}" />
+                                <Text text="{NAME}" />
+                                <Text text="{DESCRIPTION}" />
+                                <Text text="{STEREOTYPE}" />
+                                <Text text="{OWNER}" />
+                                <Text text="{ACTIVE}" />
+                                <Text text="{PARENT_PACKAGE_KEYS}" />
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
             </VBox>
         </content>
         <buttons>
             <Button
                 text="Upload"
-                press=".onUploadPress"
-                type="Emphasized"/>
+                press=".onUploadPress"/>
             <Button
                 text="Cancel"
                 press=".onCloseDialog"/>
