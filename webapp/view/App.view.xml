@@ -1,0 +1,17 @@
+<mvc:View
+    controllerName="basic.sapui5.app.controller.App"
+    xmlns="sap.m"
+    xmlns:mvc="sap.ui.core.mvc">
+    <App>
+        <pages>
+            <Page title="Welcome to SAPUI5">
+                <content>
+                    <VBox alignItems="Center" justifyContent="Center" height="100%">
+                        <Title text="Hello SAPUI5!" level="H1"/>
+                        <Button text="Click Me" press=".onButtonPress" class="sapUiSmallMargin"/>
+                    </VBox>
+                </content>
+            </Page>
+        </pages>
+    </App>
+</mvc:View> 

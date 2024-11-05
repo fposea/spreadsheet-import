@@ -1,0 +1,12 @@
+{
+  "name": "basic-sapui5-app",
+  "version": "1.0.0",
+  "description": "Basic SAPUI5 Application",
+  "scripts": {
+    "start": "ui5 serve",
+    "build": "ui5 build"
+  },
+  "devDependencies": {
+    "@ui5/cli": "^3.0.0"
+  }
+}

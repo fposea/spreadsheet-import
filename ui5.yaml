@@ -1,0 +1,11 @@
+specVersion: '2.6'
+metadata:
+  name: basic-sapui5-app
+type: application
+framework:
+  name: SAPUI5
+  version: "1.120.0"
+resources:
+  configuration:
+    paths:
+      webapp: webapp
