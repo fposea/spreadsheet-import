@@ -68,8 +68,15 @@ sap.ui.define([
                     oFileUploader.clear();
                     oFileUploader.setValue("");
                 }
+                
+                // Reset table visibility and data
+                var oTable = this.byId("dataTable");
+                if (oTable) {
+                    oTable.setVisible(false);
+                }
+                
                 oDialog.open();
-            });
+            }.bind(this)); // Add bind(this) to maintain controller context
         },
 
         onCloseDialog: function () {
@@ -85,6 +92,7 @@ sap.ui.define([
             var file = event.getParameter("files")[0];
             var oFileUploader = this.byId("fileUploader");
             var oTable = this.byId("dataTable");
+            oTable.setVisible(false);
             console.log(file);
 
             if(file) {
@@ -92,6 +100,7 @@ sap.ui.define([
                 if (ext !== "xlsx" && ext !== "xls") {
                     sap.m.MessageBox.error("Please upload a valid Excel file (xlsx or xls).");
                     oFileUploader.clear();
+                    // oT÷able.setVisible(false);
                     return;
                 } 
                 var jsonData = await Utils.convertExcelToJson(file);
@@ -105,6 +114,8 @@ sap.ui.define([
                     console.log(jsonData);
                 } else {
                     sap.m.MessageBox.error("Please upload a valid template for the bulk upload.");
+                    oFileUploader.clear();
+                    // oTable.setVisible(false);
                     return;
                 }     
             }

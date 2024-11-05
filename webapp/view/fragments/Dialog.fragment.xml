@@ -16,8 +16,12 @@
                     tooltip="Choose file"
                     placeholder="Choose file"
                     change=".onFileChange"/>
-                <Label text="Please upload a valid template for the bulk upload. See download link." />
-
+               
+                <HBox alignItems="Center" justifyContent="SpaceBetween" width="93%">
+                    <Label text="* Please upload a valid template for the bulk upload." class="sapUiTinyMarginTop"/>
+                    <Link text="Download template" href="#"/>
+                </HBox>
+               
                 <Table
                     id="dataTable"
                     items="{/items}"
