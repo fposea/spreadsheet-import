@@ -1,0 +1,157 @@
+onFileChange: async function(event) {
+                var file = event.getParameter("files")[0];
+                var oFileUploader = this.byId("fileUploader");
+
+                //preview loaded data TAB1
+                var oTable = this.getView().byId("TAB1");
+                var oTemplate = new sap.m.ColumnListItem({
+                    cells:
+                    [
+                        new sap.m.Text({text: "{packages>TECHNICAL_NAME}"}),
+                        new sap.m.Text({text: "{packages>NAME}"}),
+                        new sap.m.Text({text: "{packages>DESCRIPTION}"}),
+                        new sap.m.Text({text: "{packages>STEREOTYPE}"}),
+                        new sap.m.Text({text: "{packages>OWNER}"}),
+                        new sap.m.Text({text: "{packages>ACTIVE}"}),
+                        new sap.m.Text({text: "{packages>PARENT_PACKAGE_KEYS}"})
+                    ]
+    
+                });
+    
+                oTable.bindItems({
+                    path: "packages>/Packages",
+                    template: oTemplate
+    
+                })
+                
+                // console.log(oTable);
+
+                // preview loaded data TAB2
+                var vData = [
+                    {
+                      "TECHNICAL_NAME": "MIHAI_TEST_UPLOAD_21",
+                      "NAME": "TEST PACKAGE 1",
+                      "DESCRIPTION": "# of sessions to work with SAC in excel through MS add-in",
+                      "STEREOTYPE": "SCOPEITEMCATEGORY_L1|PORTOFOLIO_CATEGORY",
+                      "OWNER": "I355223",
+                      "ACTIVE": "yes",
+                      "PARENT_PACKAGE_KEYS": "SAP_BAC_L4_BO_COD_PSP_SLAYOUT_GSETTINGS"
+                    },
+                    {
+                      "TECHNICAL_NAME": "MIHAI_TEST_UPLOAD_22",
+                      "NAME": "TEST PACKAGE 2",
+                      "DESCRIPTION": "# of sessions to work with SAC in excel through MS add-in",
+                      "STEREOTYPE": "SCOPEITEMCATEGORY_L1",
+                      "OWNER": "I355223",
+                      "ACTIVE": "yes",
+                      "PARENT_PACKAGE_KEYS": "SAP_BAC_L4_BO_COD_PSP_SLAYOUT_GSETTINGS"
+                    },
+                    {
+                      "TECHNICAL_NAME": "MIHAI_TEST_UPLOAD_23",
+                      "NAME": "TEST PACKAGE 3",
+                      "DESCRIPTION": "# of sessions to work with SAC in excel through MS add-in",
+                      "STEREOTYPE": "PORTOFOLIO_CATEGORY",
+                      "OWNER": "I355223",
+                      "ACTIVE": "yes",
+                      "PARENT_PACKAGE_KEYS": "SAP_BAC_L4_BO_COD_PSP_SLAYOUT_GSETTINGS"
+                    }
+                ];
+
+                // var oTable = new sap.ui.table.Table({
+                //     title: "Employee Details", 
+                //     visibleRowCount: 3,
+                //     selectionMode: sap.ui.table.SelectionMode.Single,
+                //     fixedColumnCount: 3,
+                //     width:"1024px"
+                // });
+
+                // oTable.addColumn(new sap.ui.table.Column ({
+                //     label: new sap.ui.commons.Label({text: "TECHNICAL_NAME"}),
+                //     template: new sap.ui.commons.TextField().bindProperty("value", "TECHNICAL_NAME"),
+                //     sortProperty: "TECHNICAL_NAME",
+                //     filterProperty: "TECHNICAL_NAME"
+                // }));
+
+                // oTable.addColumn(new sap.ui.table.Column ({
+                //     label: new sap.ui.commons.Label({text: "NAME"}),
+                //     template: new sap.ui.commons.TextField().bindProperty("value", "NAME"),
+                //     sortProperty: "NAME",
+                //     filterProperty: "NAME"
+                // }));
+
+                // oTable.addColumn(new sap.ui.table.Column ({
+                //     label: new sap.ui.commons.Label({text: "DESCRIPTION"}),
+                //     template: new sap.ui.commons.TextField().bindProperty("value", "DESCRIPTION"),
+                //     sortProperty: "DESCRIPTION",
+                //     filterProperty: "DESCRIPTION"
+                // }));
+                
+                // oTable.addColumn(new sap.ui.table.Column ({
+                //     label: new sap.ui.commons.Label({text: "STEREOTYPE"}),
+                //     template: new sap.ui.commons.TextField().bindProperty("value", "STEREOTYPE"),
+                //     sortProperty: "STEREOTYPE",
+                //     filterProperty: "STEREOTYPE"
+                // }));
+
+                // oTable.addColumn(new sap.ui.table.Column ({
+                //     label: new sap.ui.commons.Label({text: "OWNER"}),
+                //     template: new sap.ui.commons.TextField().bindProperty("value", "OWNER"),
+                //     sortProperty: "OWNER",
+                //     filterProperty: "OWNER"
+                // }));
+
+                // oTable.addColumn(new sap.ui.table.Column ({
+                //     label: new sap.ui.commons.Label({text: "ACTIVE"}),
+                //     template: new sap.ui.commons.TextField().bindProperty("value", "ACTIVE"),
+                //     sortProperty: "ACTIVE",
+                //     filterProperty: "ACTIVE"
+                // }));
+
+                // oTable.addColumn(new sap.ui.table.Column ({
+                //     label: new sap.ui.commons.Label({text: "PARENT_PACKAGE_KEYS"}),
+                //     template: new sap.ui.commons.TextField().bindProperty("value", "PARENT_PACKAGE_KEYS"),
+                //     sortProperty: "PARENT_PACKAGE_KEYS",
+                //     filterProperty: "PARENT_PACKAGE_KEYS"
+                // }));
+
+                var oModel = new sap.ui.model.json.JSONModel({vData});
+                // oModel.setData({modelData: vData});
+                console.log("aaa", oModel);
+                var oTable = this.getView().byId("TAB2");
+                oTable.setModel(oModel);
+                
+                console.log(oTable);
+
+                // oTable.placeAt("TAB2");
+
+
+                // this._excelfileJSONData = null;
+                console.log(this._excelfileJSONData);
+                console.log("xxx", this);
+
+                if(file) {
+                    var ext = file.name.split('.').pop();
+                    if (ext !== "xlsx" && ext !== "xls") {
+                        MessageToast.show("Please upload a valid Excel file (xlsx or xls).");
+                        oFileUploader.clear();
+                        return;
+                    } 
+                    var jsonData = await Utils.convertExcelToJson(file);
+
+                    if(Utils.validateJsonTemplate(jsonData)) {
+                        this._excelfileJSONData = jsonData;
+                        console.log(jsonData);
+                    } else {
+                        MessageToast.show("Please upload a valid template for the bulk upload.");
+                        oFileUploader.clear();
+                        return;
+                    }     
+                }
+            },
+
+             onFileUpload: async function (event) {
+                if(this._excelfileJSONData) {
+                    console.log(this._excelfileJSONData);
+                }
+            },
+

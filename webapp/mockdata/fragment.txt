@@ -1,0 +1,111 @@
+<core:FragmentDefinition xmlns:m="sap.m" xmlns:l="sap.ui.layout" xmlns:core="sap.ui.core" xmlns:u="sap.ui.unified">
+    <l:VerticalLayout>
+        <m:HBox>
+            <u:FileUploader
+            id="fileUploader"
+            name="myFileUpload"
+            uploadUrl="upload/"
+            uploadComplete="handleUploadComplete" 
+            class="sapUiSmallMarginBegin"
+            change="onFileChange"
+            value=""            
+            />
+            <m:Button
+                text="Upload"
+                class="sapUiSmallMarginBegin sapUiSmallMarginEnd"
+                press="onFileUpload"/>
+        </m:HBox>
+        <m:HBox alignItems="Center">
+            <m:Text text="With upsert:" class="sapUiSmallMarginBegin"/>
+            <m:Switch
+                id="upsertSwitch"
+                state="false"
+                customTextOn="Yes"
+                customTextOff="No"
+                change="onSwitchChange"
+            />
+        </m:HBox>
+        <!-- <m:TextArea id="textArea" rows="10" width="100%" editable="false"/> -->
+        <m:Table id="TAB1" headerText="Preview loaded data">
+            <m:columns>
+                <m:Column>
+                    <m:Text text="TECHNICAL_NAME" />
+                </m:Column>
+                <m:Column>
+                    <m:Text text="NAME" />
+                </m:Column>
+                <m:Column>
+                    <m:Text text="DESCRIPTION" />
+                </m:Column>
+                <m:Column>
+                    <m:Text text="STEREOTYPE" />
+                </m:Column>
+                <m:Column>
+                    <m:Text text="OWNER" />
+                </m:Column>
+                <m:Column>
+                    <m:Text text="ACTIVE" />
+                </m:Column>
+                <m:Column>
+                    <m:Text text="PARENT_PACKAGE_KEYS" />
+                </m:Column>
+            </m:columns>
+        </m:Table>
+        <m:Table id="TAB2" headerText="Preview loaded data 2" items="{packages/Packages}">
+            <m:columns>
+                <m:Column>
+                    <m:Text text="TECHNICAL_NAME" />
+                </m:Column>
+                <m:Column>
+                    <m:Text text="NAME" />
+                </m:Column>
+                <m:Column>
+                    <m:Text text="DESCRIPTION" />
+                </m:Column>
+                <m:Column>
+                    <m:Text text="STEREOTYPE" />
+                </m:Column>
+                <m:Column>
+                    <m:Text text="OWNER" />
+                </m:Column>
+                <m:Column>
+                    <m:Text text="ACTIVE" />
+                </m:Column>
+                <m:Column>
+                    <m:Text text="PARENT_PACKAGE_KEYS" />
+                </m:Column>
+            </m:columns>
+            <m:items>
+				<m:ColumnListItem >
+					<m:cells>
+						<m:Text text="{packages>TECHNICAL_NAME}" />
+                        <m:Text text="{NAME}" />
+                        <m:Text text="{DESCRIPTION}" />
+                        <m:Text text="{STEREOTYPE}" />
+                        <m:Text text="{OWNER}" />
+                        <m:Text text="{ACTIVE}" />
+                        <m:Text text="{PARENT_PACKAGE_KEYS}" />
+					</m:cells>
+					<!-- <m:cells>
+						<m:Text text="{NAME}" />
+					</m:cells>
+					<m:cells>
+						<m:Text text="{DESCRIPTION}" />
+					</m:cells>
+					<m:cells>
+						<m:Text text="{STEREOTYPE}" />
+					</m:cells>
+					<m:cells>
+						<m:Text text="{OWNER}" />
+					</m:cells>
+					<m:cells>
+						<m:Text text="{ACTIVE}" />
+					</m:cells>
+					<m:cells>
+						<m:Text text="{PARENT_PACKAGE_KEYS}" />
+					</m:cells> -->
+				</m:ColumnListItem>
+			</m:items>
+        </m:Table>
+    </l:VerticalLayout>
+</core:FragmentDefinition>

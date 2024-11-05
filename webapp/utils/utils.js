@@ -29,6 +29,44 @@ sap.ui.define([], function() {
             }
             
             return true;
+        },
+
+        convertExcelToJson: function (file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: "array" });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                    resolve(jsonData);
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        },
+
+        validateJsonTemplate: function (jsonData) {
+            const expectedRows = {
+                ACTIVE: "string",
+                DESCRIPTION: "string", 
+                NAME: "string",
+                OWNER: "string",
+                PARENT_PACKAGE_KEYS: "string",
+                STEREOTYPE: "string",
+                TECHNICAL_NAME: "string",
+            };
+
+            const checkType = (value, type) => typeof value === type;
+
+            return jsonData.every((item) =>
+                Object.keys(expectedRows).every(
+                    (key) =>
+                        key in item && checkType(item[key], expectedRows[key])
+                )
+            );
         }
+        
     };
 }); 
