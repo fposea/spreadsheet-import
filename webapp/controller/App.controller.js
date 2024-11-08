@@ -7,51 +7,27 @@ sap.ui.define([
 ], function (Controller, MessageToast, Fragment, Utils, MessageBox) {
     "use strict";
 
-    var vData = [
-        {
-          "TECHNICAL_NAME": "MIHAI_TEST_UPLOAD_21",
-          "NAME": "TEST PACKAGE 1",
-          "DESCRIPTION": "# of sessions to work with SAC in excel through MS add-in",
-          "STEREOTYPE": "SCOPEITEMCATEGORY_L1|PORTOFOLIO_CATEGORY",
-          "OWNER": "I355223",
-          "ACTIVE": "yes",
-          "PARENT_PACKAGE_KEYS": "SAP_BAC_L4_BO_COD_PSP_SLAYOUT_GSETTINGS"
-        },
-        {
-          "TECHNICAL_NAME": "MIHAI_TEST_UPLOAD_22",
-          "NAME": "TEST PACKAGE 2",
-          "DESCRIPTION": "# of sessions to work with SAC in excel through MS add-in",
-          "STEREOTYPE": "SCOPEITEMCATEGORY_L1",
-          "OWNER": "I355223",
-          "ACTIVE": "yes",
-          "PARENT_PACKAGE_KEYS": "SAP_BAC_L4_BO_COD_PSP_SLAYOUT_GSETTINGS"
-        },
-        {
-          "TECHNICAL_NAME": "MIHAI_TEST_UPLOAD_23",
-          "NAME": "TEST PACKAGE 3",
-          "DESCRIPTION": "# of sessions to work with SAC in excel through MS add-in",
-          "STEREOTYPE": "PORTOFOLIO_CATEGORY",
-          "OWNER": "I355223",
-          "ACTIVE": "yes",
-          "PARENT_PACKAGE_KEYS": "SAP_BAC_L4_BO_COD_PSP_SLAYOUT_GSETTINGS"
-        }
-    ];
-
     return Controller.extend("basic.sapui5.app.controller.App", {
+        
         onInit: function () {
-            // Initialize the JSON model with vData
+            // Initialize the JSON model with empty items array
             var oModel = new sap.ui.model.json.JSONModel({
-                items: vData
+                items: [],
+                dialogTitle: "Default Upload Dialog" // Add initial title
             });
             this.getView().setModel(oModel);
         },
-
-        onButtonPress: function () {
+        
+        onClickMeButtonPress: function () {
             var oView = this.getView();
+            var oModel = this.getView().getModel();
+             
+            // Update the dialog title dynamically
+            oModel.setProperty("/dialogTitle", "Upload Dialog - " + new Date().toLocaleString());
             
             // Create dialog lazily
-            if (!this.pDialog) {
-                this.pDialog = Fragment.load({
+            if (!this._pDialog) {
+                this._pDialog = Fragment.load({
                     id: oView.getId(),
                     name: "basic.sapui5.app.view.fragments.Dialog",
                     controller: this
@@ -61,7 +37,7 @@ sap.ui.define([
                 });
             }
             
-            this.pDialog.then(function(oDialog) {
+            this._pDialog.then(function(oDialog) {
                 // Reset file uploader before opening dialog
                 var oFileUploader = oDialog.getContent()[0].getItems()[0];
                 if (oFileUploader) {
@@ -70,7 +46,7 @@ sap.ui.define([
                 }
                 
                 // Reset table visibility and data
-                var oTable = this.byId("dataTable");
+                var oTable = this.byId("idItemsDataTable");
                 if (oTable) {
                     oTable.setVisible(false);
                 }
@@ -79,21 +55,21 @@ sap.ui.define([
             }.bind(this)); // Add bind(this) to maintain controller context
         },
 
-        onCloseDialog: function () {
-            this.pDialog.then(function(oDialog) {
+        onCancelButtonPress: function () {
+            this._pDialog.then(function(oDialog) {
                 oDialog.close();
             });
         },
 
-        onFileChange: async function (event) {
+        onFileUploaderChange: async function (event) {
             // Validate the file using our utility function
             // Utils.validateExcelFile(oEvent);
 
             var file = event.getParameter("files")[0];
-            var oFileUploader = this.byId("fileUploader");
-            var oTable = this.byId("dataTable");
+            var oFileUploader = this.byId("idFileUploader");
+            var oTable = this.byId("idItemsDataTable");
             oTable.setVisible(false);
-            console.log(file);
+            // console.log(file);
 
             if(file) {
                 var ext = file.name.split('.').pop();
@@ -122,15 +98,15 @@ sap.ui.define([
 
         },
 
-        onUploadPress: function() {
+        onUploadButtonPress: function() {
             // Get the file uploader from the dialog content
-            var oDialog = this.byId("uploadDialog"); // Make sure this ID matches your Dialog fragment
+            var oDialog = this.byId("idUploadDialog"); // Make sure this ID matches your Dialog fragment
             if (!oDialog) {
                 MessageBox.error("Dialog not found");
                 return;
             }
 
-            var oFileUploader = this.byId("fileUploader");
+            var oFileUploader = this.byId("idFileUploader");
             if (!oFileUploader) {
                 MessageBox.error("File uploader not found");
                 return;
@@ -149,6 +125,7 @@ sap.ui.define([
             
             // Close the dialog after successful upload
             this.onCloseDialog();
-        }
+        },
+
     });
 }); 
