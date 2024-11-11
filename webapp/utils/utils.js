@@ -44,24 +44,29 @@ sap.ui.define([], function() {
             });
         },
 
-        validateJsonTemplate: function(jsonData) {
-            if (!Array.isArray(jsonData) || jsonData.length === 0) {
-                return false;
+        validateJsonTemplate: function(jsonData, expectedFields) {
+            if (!Array.isArray(jsonData)) {
+                return {
+                    validTemplate: false,
+                    noData: false
+                };
             }
 
-            const requiredFields = [
-                "TECHNICAL_NAME",
-                "NAME",
-                "DESCRIPTION",
-                "STEREOTYPE",
-                "OWNER",
-                "ACTIVE",
-                "PARENT_PACKAGE_KEYS"
-            ];
+            if (jsonData.length === 0) {
+                return {
+                    validTemplate: false,
+                    noData: true
+                };
+            }
 
             // Check if first row has all required fields
             const firstRow = jsonData[0];
-            return requiredFields.every(field => field in firstRow);
+            const hasAllFields = expectedFields.every(field => field in firstRow);
+
+            return {
+                validTemplate: hasAllFields,
+                noData: false
+            };
         }
     };
 }); 

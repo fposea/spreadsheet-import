@@ -8,7 +8,7 @@
                 <content>
                     <VBox alignItems="Center" justifyContent="Center" height="100%">
                         <Title text="Hello SAPUI5!" level="H1"/>
-                        <Button text="Click Me" press=".onClickMeButtonPress" class="sapUiSmallMargin"/>
+                        <Button text="Package Upload" press=".onPackageUploadButtonPress" class="sapUiSmallMargin"/>
                     </VBox>
                 </content>
             </Page>
