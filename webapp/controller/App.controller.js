@@ -9,16 +9,35 @@ sap.ui.define([
 
     return Controller.extend("basic.sapui5.app.controller.App", {
         
+        _bulkUploadTemplates: {
+            PACKAGE_UPLOAD: [
+                "TECHNICAL_NAME",
+                "NAME",
+                "DESCRIPTION",
+                "STEREOTYPE",
+                "OWNER",
+                "ACTIVE",
+                "PARENT_PACKAGE_KEYS"
+            ],
+            PACKAGE_MO_UPLOAD: [
+                "KEY_PACKAGE",
+                "KEY_MEASUREMENT_OBJECTS",
+                "CHANGED_BY",
+                "CHANGED_AT"
+            ]
+        },
+
         onInit: function () {
             // Initialize the JSON model with empty items array
             var oModel = new sap.ui.model.json.JSONModel({
                 items: [],
-                dialogTitle: "" // Add initial title
+                dialogTitle: "",
+                uploadEnabled: false
             });
             this.getView().setModel(oModel);
         },
         
-        onPackageUploadButtonPress: function (oEvent) {
+        onBulkUploadButtonPress: function (oEvent) {
             var oView = this.getView();
             var oModel = this.getView().getModel();
              
@@ -40,20 +59,52 @@ sap.ui.define([
             
             this._pDialog.then(function(oDialog) {
                 // Reset file uploader before opening dialog
-                var oFileUploader = oDialog.getContent()[0].getItems()[0];
+                var oFileUploader = this.byId("idFileUploader");
                 if (oFileUploader) {
                     oFileUploader.clear();
-                    oFileUploader.setValue("");
                 }
                 
-                // Reset table visibility and data
+                // Reset and reconfigure table
                 var oTable = this.byId("idItemsDataTable");
                 if (oTable) {
                     oTable.setVisible(false);
+                    this._configureTableColumns(oTable, buttonText);
                 }
                 
                 oDialog.open();
-            }.bind(this)); // Add bind(this) to maintain controller context
+            }.bind(this));
+        },
+
+        _configureTableColumns: function(oTable, dialogTitle) {
+            // Clear existing columns
+            oTable.removeAllColumns();
+            
+            // Get the appropriate template based on dialog title
+            const template = dialogTitle === "Package Upload" 
+                ? this._bulkUploadTemplates.PACKAGE_UPLOAD 
+                : this._bulkUploadTemplates.PACKAGE_MO_UPLOAD;
+            
+            // Add columns based on template
+            template.forEach(function(fieldName) {
+                oTable.addColumn(new sap.m.Column({
+                    header: new sap.m.Text({
+                        text: fieldName.replace(/_/g, ' ')
+                    })
+                }));
+            });
+
+            // Update the ColumnListItem template
+            var oTemplate = new sap.m.ColumnListItem();
+            template.forEach(function(fieldName) {
+                oTemplate.addCell(new sap.m.Text({
+                    text: "{" + fieldName + "}"
+                }));
+            });
+
+            oTable.bindItems({
+                path: "/items",
+                template: oTemplate
+            });
         },
 
         onCancelButtonPress: function () {
@@ -63,60 +114,55 @@ sap.ui.define([
         },
 
         onFileUploaderChange: async function (event) {
-            // Validate the file using our utility function
-            // Utils.validateExcelFile(oEvent);
-
             var file = event.getParameter("files")[0];
             var oFileUploader = this.byId("idFileUploader");
             var oTable = this.byId("idItemsDataTable");
+            var oModel = this.getView().getModel();
+            var dialogTitle = oModel.getProperty("/dialogTitle");
+            
             oTable.setVisible(false);
             
             if(file) {
                 var ext = file.name.split('.').pop();
                 if (ext !== "xlsx" && ext !== "xls") {
-                    sap.m.MessageBox.error("Please upload a valid Excel file (xlsx or xls).");
+                    MessageBox.error("Please upload a valid Excel file (xlsx or xls).");
                     oFileUploader.clear();
-                    // oT÷able.setVisible(false);
                     return;
                 } 
+
                 var jsonData = await Utils.convertExcelToJson(file);
 
-                const requiredFields = [
-                    "TECHNICAL_NAME",
-                    "NAME",
-                    "DESCRIPTION",
-                    "STEREOTYPE",
-                    "OWNER",
-                    "ACTIVE",
-                    "PARENT_PACKAGE_KEYS"
-                ];
+                // Select template based on dialog title
+                const requiredFields = dialogTitle === "Package Upload" 
+                    ? this._bulkUploadTemplates.PACKAGE_UPLOAD 
+                    : this._bulkUploadTemplates.PACKAGE_MO_UPLOAD;
+
                 const validationResult = Utils.validateJsonTemplate(jsonData, requiredFields);
                 if(validationResult.validTemplate) {
                     this._excelfileJSONData = jsonData;
-                    // Update model with new data and show table
-                    var oModel = this.getView().getModel();
                     oModel.setData({ 
                         items: jsonData,
-                        dialogTitle: oModel.getProperty("/dialogTitle")  // Preserve the existing title
+                        dialogTitle: dialogTitle,
+                        uploadEnabled: true
                     });
+                    
+                    // Ensure table is configured before showing
+                    this._configureTableColumns(oTable, dialogTitle);
                     oTable.setVisible(true);
                 } else {
                     if (validationResult.noData) {
-                        sap.m.MessageBox.error("The uploaded file contains no data.");
+                        MessageBox.error("The uploaded file contains no data.");
                     } else {
-                        sap.m.MessageBox.error("Please upload a valid template for the bulk upload.");
+                        MessageBox.error("Please upload a valid template for the bulk upload.");
                     }
                     oFileUploader.clear();
-                    // oTable.setVisible(false);
                     return;
                 }
             }
-
         },
 
         onUploadButtonPress: function() {
-            // Get the file uploader from the dialog content
-            var oDialog = this.byId("idUploadDialog"); // Make sure this ID matches your Dialog fragment
+            var oDialog = this.byId("idUploadDialog");
             if (!oDialog) {
                 MessageBox.error("Dialog not found");
                 return;
@@ -128,20 +174,21 @@ sap.ui.define([
                 return;
             }
 
-            var domRef = oFileUploader.getFocusDomRef();
-            if (!domRef || !domRef.files || !domRef.files[0]) {
-                MessageBox.error("Please choose a file first");
+            if (!this._excelfileJSONData) {
+                MessageBox.error("Please choose and validate a file first");
                 return;
             }
 
-            var file = domRef.files[0];
-            
             // Here you can implement the actual file upload logic
-            MessageToast.show("File ready for upload: " + file.name);
+            MessageToast.show("Processing upload...");
             
             // Close the dialog after successful upload
-            this.onCloseDialog();
+            oDialog.close();
         },
+
+        onFileUploaderUploadComplete: function(oEvent) {
+            MessageToast.show("Upload completed");
+        }
 
     });
 }); 

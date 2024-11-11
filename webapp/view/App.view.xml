@@ -1,17 +1,27 @@
 <mvc:View
     controllerName="basic.sapui5.app.controller.App"
+    xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    xmlns:mvc="sap.ui.core.mvc">
+    displayBlock="true"
+>
     <App>
         <pages>
-            <Page title="Welcome to SAPUI5">
+            <Page title="Bulk Upload">
                 <content>
-                    <VBox alignItems="Center" justifyContent="Center" height="100%">
-                        <Title text="Hello SAPUI5!" level="H1"/>
-                        <Button text="Package Upload" press=".onPackageUploadButtonPress" class="sapUiSmallMargin"/>
+                    <VBox class="sapUiSmallMargin">
+                        <Button
+                            text="Package Upload"
+                            press="onBulkUploadButtonPress"
+                            class="sapUiSmallMarginEnd"
+                        />
+                        <Button
+                            text="PackageMo Upload"
+                            press="onBulkUploadButtonPress"
+                            class="sapUiSmallMarginEnd"
+                        />
                     </VBox>
                 </content>
             </Page>
         </pages>
     </App>
-</mvc:View> 
+</mvc:View>
