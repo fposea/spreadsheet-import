@@ -156,6 +156,9 @@ sap.ui.define([
                         MessageBox.error("Please upload a valid template for the bulk upload.");
                     }
                     oFileUploader.clear();
+                    oModel.setData({
+                        uploadEnabled: false
+                    });
                     return;
                 }
             }
